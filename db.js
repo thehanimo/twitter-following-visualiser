@@ -40,3 +40,40 @@ async function update(collection, filter, doc) {
       await client.close();
     }
   }
+
+async function getRandomFollowingList(limit){
+
+
+}
+async function getRandomAccountsWithTweets(n=20) {
+  const coll = client.db("twitter_mock").collection("tweets")
+  const tweets = await (coll.aggregate([{ $sample: { size: n } }])).toArray()
+  const out = []
+  await Promise.all(tweets.map(async t=>{
+    const tweetTexts = await (coll.find({username: t.username}).project({text: 1, _id: 1})).toArray()
+    out.push({
+      username: t.username,
+      tweets: tweetTexts.map(x=>({_id: x._id, text: x.text}))
+    })
+  }))
+  return out;
+}
+
+async function getCurrentAccountData(username) {
+  const coll = client.db("twitter_mock").collection("users")
+  if ((await coll.findOne({username})) === null) {
+    const data = await getRandomAccountsWithTweets()
+    await coll.insertOne({
+      username,
+      data
+    })
+  }
+  return await coll.findOne({username})
+}
+
+module.exports = {
+  getCurrentAccountData
+}
+
+
+

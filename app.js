@@ -2,6 +2,8 @@ const express = require('express');
 const passport = require('passport');
 const { Strategy } = require('@superfaceai/passport-twitter-oauth2');
 const session = require('express-session');
+const { getCurrentAccountData } = require('./db');
+const cors = require('cors')
 require('dotenv').config();
 
 // <1> Serialization and deserialization
@@ -31,6 +33,7 @@ passport.use(
 );
 
 const app = express();
+app.use(cors())
 
 // <4> Passport and session middleware initialization
 app.use(passport.initialize());
@@ -54,6 +57,14 @@ app.get(
   function (req, res) {
     const userData = JSON.stringify(req.user, undefined, 2);
     res.redirect(`http://localhost:3001/twitter-redirect?${new URLSearchParams(userData).toString()}`)
+  }
+);
+
+app.get(
+  '/random',
+  async function (req, res) {
+    const data = await getCurrentAccountData(req.query.username)
+    res.json(data)
   }
 );
 

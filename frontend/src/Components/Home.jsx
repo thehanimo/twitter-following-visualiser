@@ -11,6 +11,7 @@ import {
   YAxis,
   Bar,
 } from "recharts";
+import ButtonGroup from "antd/es/button/button-group";
 const { Title, Text } = Typography;
 
 const data = [
@@ -110,6 +111,10 @@ const Home = (props) => {
     await axios.post("http://127.0.0.1:5000/addData", followData);
   };
 
+  const triggerClassifier = async () => {
+    await axios.get("http://127.0.0.1:5000/triggerHadoop");
+  };
+
   const getTags = async () => {
     const { data } = await axios.post(
       "http://127.0.0.1:5000/getTags",
@@ -196,12 +201,16 @@ const Home = (props) => {
       </div>
       </div>
       <Row style={{ justifyContent: "flex-end", marginBottom: 8 }}>
-        <Button type="primary" onClick={getTags}>
+        <ButtonGroup>
+      <Button onClick={triggerClassifier}>
+          Trigger Classifier
+        </Button><Button onClick={getTags}>
           Refresh
         </Button>
         <Button type="primary" onClick={submitData}>
           Submit
         </Button>
+        </ButtonGroup>
       </Row>
       <Table
         dataSource={followData}
